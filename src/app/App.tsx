@@ -84,8 +84,8 @@ const CHARACTERS: Character[] = [
     description:
       "Once Anakin Skywalker — gifted Jedi Knight, hopeful father, devoted husband. Fear and grief bent him toward the dark side. Decades later, a son's refusal to give up on him becomes the axis of his redemption.",
     imageUrl:
-      "https://i.pinimg.com/736x/d5/72/26/d572260be960faa960f5a59fdd12b97b.jpg",
-    videoUrl: "https://www.youtube.com/shorts/xTHF1Hkj-BY?feature=share",
+      "https://images.unsplash.com/photo-1547700055-b61cacebece9?w=480&h=600&fit=crop&auto=format",
+    videoUrl: "https://www.youtube.com/watch?v=oKMBsEUkjA4",
   },
 ];
 
@@ -586,13 +586,30 @@ function difficultyLabel(value: number) {
   return { label: "Hard", color: "#C1432E" };
 }
 
+function shuffleQuestion(question: {
+  q: string;
+  options: string[];
+  answer: number;
+}) {
+  const indices = question.options.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return {
+    q: question.q,
+    options: indices.map((i) => question.options[i]),
+    answer: indices.indexOf(question.answer),
+  };
+}
+
 function pickQuestion(value: number, used: Set<string>) {
   const bank = QUESTION_BANK[value];
   const fresh = bank.filter((_, i) => !used.has(`${value}-${i}`));
   const pool = fresh.length ? fresh : bank;
-  const question = pool[Math.floor(Math.random() * pool.length)];
-  const idx = bank.indexOf(question);
-  return { question, key: `${value}-${idx}` };
+  const template = pool[Math.floor(Math.random() * pool.length)];
+  const idx = bank.indexOf(template);
+  return { question: shuffleQuestion(template), key: `${value}-${idx}` };
 }
 
 type BetView = "intro" | "rolling" | "question" | "answered" | "summary";
